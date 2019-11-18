@@ -22,9 +22,12 @@ class ErbComponent
   end
 
   def template
-    a = "components/#{self.class.name.underscore}.erb"
+    file_name = "#{self.class.name.underscore}.erb"
+    a = "components/#{file_name}"
     return File.read a if File.exists? a
-    fail 'not found'
+    a = "pages/#{file_name}"
+    return File.read a if File.exists? a
+    fail "not found: #{file_name}"
   end
 
   def method_missing(m, *args, &block)

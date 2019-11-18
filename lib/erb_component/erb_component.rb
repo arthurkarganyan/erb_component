@@ -38,5 +38,7 @@ class ErbComponent
     opts.merge!(args[0]) if args.size > 0
     component = clazz.new(opts)
     component.render
+  rescue
+    super
   end
 end

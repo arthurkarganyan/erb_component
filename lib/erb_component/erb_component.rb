@@ -22,7 +22,7 @@ class ErbComponent
 
   def render
     str = ERB.new(template).result(binding)
-    parent ? parent.render.gsub("{{VIEW}}", str) : str
+    parent ? parent.render.gsub("{{VIEW}}", str).gsub("{{view}}", str) : str
   end
 
   def self.render(opts = {})

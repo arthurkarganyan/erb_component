@@ -2,14 +2,22 @@ require "erb_component/version"
 require 'erb'
 
 class ErbComponent
-  class Error < StandardError; end
+  class Error < StandardError;
+  end
 
-  attr_reader :params, :path, :parent
+  attr_reader :req, :parent
 
-  def initialize(opts = {})
-    @params = opts[:params] || {}
-    @path = opts[:path]
+  def initialize(req)
+    @req = req
     @parent = self.class.superclass == ErbComponent ? nil : self.class.superclass.new(opts)
+  end
+
+  def path
+    @req.path
+  end
+
+  def params
+    @req.params
   end
 
   def render

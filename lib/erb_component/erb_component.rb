@@ -39,12 +39,9 @@ class ErbComponent
   end
 
   def method_missing(m, *args, &block)
-    possible_const = "#{self.class}::#{m}"
-    clazz = if Kernel.const_defined?(possible_const)
-              Kernel.const_get possible_const
-            else
-              Kernel.const_get m.to_s
-            end
+    m = m.to_s
+    str = Kernel.const_defined?("#{self.class}::#{m}") ? "#{self.class}::#{m}" : m
+    clazz = Kernel.const_get(str)
     opts = {path: path, params: params}
     opts.merge!(args[0]) if args.size > 0
     component = clazz.new(opts)

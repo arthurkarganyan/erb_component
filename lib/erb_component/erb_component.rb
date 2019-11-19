@@ -9,7 +9,7 @@ class ErbComponent
 
   def initialize(req)
     @req = req
-    @parent = self.class.superclass == ErbComponent ? nil : self.class.superclass.new(opts)
+    @parent = self.class.superclass == ErbComponent ? nil : self.class.superclass.new(req)
   end
 
   def path

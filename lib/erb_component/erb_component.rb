@@ -29,13 +29,24 @@ class ErbComponent
     new(opts).render
   end
 
+  def template_file_path
+    @template_file_path ||= begin
+      file_name = "#{self.class.name.underscore}.erb"
+      if File.exists? "components/#{file_name}"
+        return "components/#{file_name}"
+      elsif File.exists? "pages/#{file_name}"
+        return "pages/#{file_name}"
+      else
+        nil
+      end
+    end
+  end
+
   def template
-    file_name = "#{self.class.name.underscore}.erb"
-    a = "components/#{file_name}"
-    return File.read a if File.exists? a
-    a = "pages/#{file_name}"
-    return File.read a if File.exists? a
-    fail "not found: #{file_name}"
+    if template_file_path
+      File.read template_file_path
+    end
+    fail "not found: #{template_file_path}"
   end
 
   def method_missing(m, *args, &block)

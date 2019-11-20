@@ -30,15 +30,13 @@ class ErbComponent
   end
 
   def template_file_path
-    @template_file_path ||= begin
-      file_name = "#{self.class.name.underscore}.erb"
-      if File.exists? "components/#{file_name}"
-        return "components/#{file_name}"
-      elsif File.exists? "pages/#{file_name}"
-        return "pages/#{file_name}"
-      else
-        nil
-      end
+    file_name = "#{self.class.name.underscore}.erb"
+    if File.exists? "components/#{file_name}"
+      return "components/#{file_name}"
+    elsif File.exists? "pages/#{file_name}"
+      return "pages/#{file_name}"
+    else
+      nil
     end
   end
 

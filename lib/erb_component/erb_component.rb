@@ -7,9 +7,15 @@ class ErbComponent
 
   attr_reader :req, :parent
 
-  def initialize(req)
+  def initialize(req, opts = {})
     @req = req
-    @parent = self.class.superclass == ErbComponent ? nil : self.class.superclass.new(req)
+    begin
+      @parent = self.class.superclass == ErbComponent ? nil : self.class.superclass.new(req)
+      if @parent && !(parent.template['{{VIEW}}'] || parent.template['{{view}}'])
+        @parent = parent.parent
+      end
+    rescue ArgumentError
+    end
   end
 
   def path
@@ -22,7 +28,11 @@ class ErbComponent
 
   def render
     str = ERB.new(template).result(binding)
-    parent ? parent.render.gsub("{{VIEW}}", str).gsub("{{view}}", str) : str
+    if parent
+      parent.render.gsub("{{VIEW}}", str).gsub("{{view}}", str)
+    else
+      str
+    end
   end
 
   def self.render(opts = {})
@@ -41,9 +51,7 @@ class ErbComponent
   end
 
   def template
-    if template_file_path
-      File.read template_file_path
-    end
+    return File.read(template_file_path) if template_file_path
     fail "not found: #{template_file_path}"
   end
 
@@ -51,11 +59,16 @@ class ErbComponent
     m = m.to_s
     str = Kernel.const_defined?("#{self.class}::#{m}") ? "#{self.class}::#{m}" : m
     clazz = Kernel.const_get(str)
-    opts = {path: path, params: params}
-    opts.merge!(args[0]) if args.size > 0
-    component = clazz.new(opts)
-    component.render
-  rescue
-    super
+    if args.size > 0
+      component = clazz.new(req, *args)
+    else
+      component = clazz.new(req)
+    end
+    begin
+      component.render
+    rescue StandardError => err
+      binding.pry
+      super
+    end
   end
 end

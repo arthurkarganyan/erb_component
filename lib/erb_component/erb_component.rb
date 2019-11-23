@@ -23,7 +23,7 @@ class ErbComponent
   end
 
   def params
-    @req.params
+    @req.params.with_indifferent_access
   end
 
   def render

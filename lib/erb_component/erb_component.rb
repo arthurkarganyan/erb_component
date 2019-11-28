@@ -22,8 +22,27 @@ class ErbComponent
     @req.path
   end
 
+  def path_hash
+    @path_hash ||= begin
+      split = path.split('/')
+      split.shift
+
+      res = {}
+      split.size.times do |i|
+        if split[i].to_i.to_s == split[i]
+          res[split[i - 1].singularize + "_id"] = split[i]
+        end
+      end
+      res.with_indifferent_access
+    end
+  end
+
   def params
-    @req.params.with_indifferent_access
+    @params ||= begin
+      res = @req.params
+      res.merge!(JSON.parse(req.body.read)) if req.post? || req.put? || req.patch?
+      res.with_indifferent_access
+    end
   end
 
   def render
@@ -64,11 +83,6 @@ class ErbComponent
     else
       component = clazz.new(req)
     end
-    begin
-      component.render
-    rescue StandardError => err
-      binding.pry
-      super
-    end
+    component.render
   end
 end
